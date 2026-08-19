@@ -1,0 +1,15 @@
+/opsx:propose -> /opsx:apply
+Мы скорректировали планы: внедряем полноценный инструмент `github.com/golang-migrate/migrate/v4` для управления миграциями прямо из кода Go-приложения на старте.
+
+Переименуй файл миграции из `000001_init.up.sql` в `000001_init_schema.up.sql` и создай для него пустой парный файл `000001_init_schema.down.sql` (с командами DROP TABLE для всех наших таблиц).
+
+Сгенерируй код для Спринта 3 (Модуль загрузки) и обновленный запуск с автомиграциями:
+
+1. `internal/infrastructure/persistence/postgres/migrator.go` — функция `RunMigrations(dbDSN string, migrationsDir string) error`, которая использует `golang-migrate`, подключается к БД, находит SQL-файлы на диске и накатывает их при старте.
+2. `internal/infrastructure/persistence/postgres/media_repository.go` — реализация `MediaRepository` и `JobQueue` на базе `github.com / jackc / pgx / v5 / pgxpool`. Сохранение MediaAsset и создание записи в processing_jobs для видео должны происходить строго в рамках ОДНОЙ SQL-транзакции.
+3. `internal/infrastructure/storage/local_storage.go` — реализация `FileStorage`. Сохраняет `io.Reader` в папку `StorageRoot`, используя UUID в качестве имени файла. Создает целевую папку, если её нет.
+4. `internal/usecase/media/media_usecase.go` — бизнес-логика. Валидирует файлы по MIME-типам/расширениям (JPEG, PNG, MP4), вызывает хранилище и репозиторий.
+5. `internal/infrastructure/delivery/http/v1/media_handler.go` — HTTP-хендлер `POST /api/media/upload`. Принимает `multipart/form-data`, валидирует размер (например, до 50MB) и отдает JSON с ID созданного ассета.
+6. `cmd/api/main.go` — точка входа. Запускает `RunMigrations`, инициализирует `pgxpool.New`, собирает слои Clean Architecture и поднимает `net/http` сервер.
+
+Пиши код под наш модуль github.com/aimv/media-gallery. Выдай только готовый код файлов в Markdown-блоках.
