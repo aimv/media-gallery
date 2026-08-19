@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: media_gallery_postgres
+    environment:
+      POSTGRES_DB: media_gallery
+      POSTGRES_USER: media_user
+      POSTGRES_PASSWORD: media_pass
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U media_user -d media_gallery"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - media-network
+
+volumes:
+  postgres_data:
+
+networks:
+  media-network:
+    driver: bridge
