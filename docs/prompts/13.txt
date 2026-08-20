@@ -1,0 +1,17 @@
+/opsx:propose -> /opsx:apply
+Мы переходим к финальному Спринт 6. Бизнес-логика полностью готова, отлажена и синхронизирована с реальной структурой БД (таблица content_block_media_links использует колонку asset_id).
+
+Наша задача — упаковать все компоненты системы в Docker Compose для локального запуска одной командой. Также нам нужен готовый JSON-код Postman-коллекции для демонстрации API.
+
+Твоя задача — сгенерировать точный код для следующих файлов:
+
+1. `Dockerfile.api` — многоэтапная сборка (multi-stage build). Stage 1 (builder) должен базироваться СТРОГО на официальном образе `golang:1.26-alpine`. Он компилирует бинарник `./cmd/api`. Stage 2 (runner) на базе чистого `alpine:latest` копирует бинарник и запускает его.
+2. `Dockerfile.worker` — аналогичная многоэтапная сборка для `./cmd/worker`. В Stage 1 используется `golang:1.26-alpine`. В Stage 2 (runner) на базе `alpine:latest` должна быть ОБЯЗАТЕЛЬНО установлена системная утилита ffmpeg (командой `apk add --no-cache ffmpeg`).
+3. `docker-compose.yml` — три сервиса: `postgres` (база данных со встроенным healthcheck), `api` (сборка из Dockerfile.api, порт 8080, зависит от готовности postgres) и `worker` (сборка из Dockerfile.worker, зависит от готовности postgres). Оба go-сервиса монтируют общую папку `./storage:/app/storage` для совместного доступа к файлам на диске.
+4. `docs/media-gallery.postman_collection.json` — сгенерируй валидный JSON-код экспорта коллекции Postman версии 2.1. Коллекция должна содержать 4 готовых запроса к нашему актуальному API (с учетом структуры CMS, где данные уходят в data, а медиа — в media_ids):
+   - GET Health Check (`http://localhost:8080/healthz`)
+   - POST Upload Image/Video (Multipart form, поле `file`)
+   - POST Create CMS Block (JSON с UUID блока, page_key, block_type, data и массивом media_ids)
+   - GET CMS Block by ID (запрос блока по UUID)
+
+Выдай готовый код файлов в Markdown-блоках.
