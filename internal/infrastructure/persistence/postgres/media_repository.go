@@ -169,6 +169,17 @@ func (r *MediaRepository) UpdateStatus(ctx context.Context, id string, status me
 	return nil
 }
 
+func (r *MediaRepository) UpdateHlsPath(ctx context.Context, id string, hlsPath *string) error {
+	_, err := r.pool.Exec(ctx, `
+		UPDATE media_assets SET hls_path = $1, updated_at = now()
+		WHERE id = $2
+	`, hlsPath, id)
+	if err != nil {
+		return fmt.Errorf("update hls path: %w", err)
+	}
+	return nil
+}
+
 func (r *MediaRepository) Delete(ctx context.Context, id string) error {
 	_, err := r.pool.Exec(ctx, `DELETE FROM media_assets WHERE id = $1`, id)
 	if err != nil {

@@ -19,7 +19,7 @@ type ProcessingJob struct {
 	MaxAttempts    int
 	LeaseOwner     string
 	LeaseExpiresAt time.Time
-	LastError      string
+	LastError      *string // изменено с string на *string для поддержки NULL
 	CreatedAt      time.Time
 	StartedAt      *time.Time
 	FinishedAt     *time.Time

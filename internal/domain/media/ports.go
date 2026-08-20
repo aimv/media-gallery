@@ -11,6 +11,7 @@ type MediaRepository interface {
 	GetByID(ctx context.Context, id string) (*MediaAsset, error)
 	List(ctx context.Context, filter ListFilter) ([]*MediaAsset, error)
 	UpdateStatus(ctx context.Context, id string, status AssetStatus) error
+	UpdateHlsPath(ctx context.Context, id string, hlsPath *string) error
 	Delete(ctx context.Context, id string) error
 }
 
