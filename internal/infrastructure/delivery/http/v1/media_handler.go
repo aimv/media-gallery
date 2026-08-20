@@ -8,20 +8,23 @@ import (
 )
 
 type MediaHandler struct {
-	usecase *media.MediaUsecase
+	usecase       *media.MediaUsecase
+	maxUploadSize int64
 }
 
-func NewMediaHandler(usecase *media.MediaUsecase) *MediaHandler {
-	return &MediaHandler{usecase: usecase}
+func NewMediaHandler(usecase *media.MediaUsecase, maxUploadSize int64) *MediaHandler {
+	return &MediaHandler{
+		usecase:       usecase,
+		maxUploadSize: maxUploadSize,
+	}
 }
 
-const maxUploadSize = 50 << 20 // 50 MB
-
+// Upload обрабатывает POST /api/media/upload.
 func (h *MediaHandler) Upload(w http.ResponseWriter, r *http.Request) {
 	// Ограничение размера тела запроса
-	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+	r.Body = http.MaxBytesReader(w, r.Body, h.maxUploadSize)
 
-	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
+	if err := r.ParseMultipartForm(h.maxUploadSize); err != nil {
 		http.Error(w, "file too large or invalid form", http.StatusBadRequest)
 		return
 	}
@@ -33,14 +36,13 @@ func (h *MediaHandler) Upload(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	// Получаем размер файла
 	size := header.Size
 	if size == 0 {
 		http.Error(w, "file is empty", http.StatusBadRequest)
 		return
 	}
-	if size > maxUploadSize {
-		http.Error(w, "file exceeds 50MB limit", http.StatusRequestEntityTooLarge)
+	if size > h.maxUploadSize {
+		http.Error(w, "file exceeds upload limit", http.StatusRequestEntityTooLarge)
 		return
 	}
 

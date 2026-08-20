@@ -1,0 +1,16 @@
+/opsx:propose -> /opsx:apply
+Задача: Тотальный рефакторинг роутинга и хендлеров под стандарты Go 1.22+ (Path Values) по всему проекту и синхронизация контекста.
+
+Контекст:
+Мы переводим проект на встроенный роутинг Go 1.22+. Все методы (GET, POST) и параметры путей должны обрабатываться нативно через `http.NewServeMux` и метод `r.PathValue()`. Ручные проверки `r.Method` и обрезки строк через `strings.TrimPrefix` должны быть полностью удалены из хендлеров.
+
+Твоя задача — обновить и выдать код для следующих файлов:
+
+1. `internal/infrastructure/delivery/http/v1/cms_handler.go` — метод `GetBlock` должен извлекать ID через `r.PathValue("id")`.
+2. `internal/infrastructure/delivery/http/v1/media_handler.go` — если в будущем нам понадобятся эндпоинты получения медиа по ID (например, `GET /api/media/{id}`), они также должны проектироваться через `r.PathValue`. Сейчас убедись, что метод `Upload` идеально ложится на роут `POST /api/media/upload`.
+3. `cmd/api/main.go` — обнови блок регистрации роутов. Он должен выглядеть строго так:
+   mux.HandleFunc("POST /api/media/upload", mediaHandler.Upload)
+   mux.HandleFunc("POST /api/cms/blocks", cmsHandler.SaveBlock)
+   mux.HandleFunc("GET /api/cms/blocks/{id}", cmsHandler.GetBlock)
+
+Выдай готовый, чистый код для этих файлов в Markdown-блоках. Теперь это наш единый стандарт проекта.

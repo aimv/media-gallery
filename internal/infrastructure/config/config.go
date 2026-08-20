@@ -1,4 +1,3 @@
-// internal/infrastructure/config/config.go
 package config
 
 import (
@@ -11,34 +10,34 @@ import (
 )
 
 type Config struct {
-	HTTPPort        string
-	DBDSN           string
-	StorageRoot     string
-	WorkerCount     int
-	LeaseDuration   time.Duration
-	MaxUploadSizeMB int64
-	APIKey          string
-	FFmpegPath      string
-	FFprobePath     string
-	LogLevel        string
+	HTTPPort         string
+	DBDSN            string
+	StorageRoot      string
+	WorkerCount      int
+	ConcurrencyLimit int
+	LeaseDuration    time.Duration
+	MaxUploadSize    int64 // в байтах
+	APIKey           string
+	FFmpegPath       string
+	FFprobePath      string
+	LogLevel         string
 }
 
 func Load() (*Config, error) {
-	// Загружаем .env, если файл существует.
-	// В Docker Compose переменные окружения прокидываются напрямую.
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		HTTPPort:        getEnv("HTTP_PORT", "8080"),
-		DBDSN:           os.Getenv("DB_DSN"),
-		StorageRoot:     os.Getenv("STORAGE_ROOT"),
-		WorkerCount:     getEnvInt("WORKER_COUNT", 1),
-		LeaseDuration:   getEnvDuration("LEASE_DURATION", 5*time.Minute),
-		MaxUploadSizeMB: getEnvInt64("MAX_UPLOAD_SIZE_MB", 500),
-		APIKey:          os.Getenv("API_KEY"),
-		FFmpegPath:      getEnv("FFMPEG_PATH", "ffmpeg"),
-		FFprobePath:     getEnv("FFPROBE_PATH", "ffprobe"),
-		LogLevel:        getEnv("LOG_LEVEL", "info"),
+		HTTPPort:         getEnv("HTTP_PORT", "8080"),
+		DBDSN:            os.Getenv("DB_DSN"),
+		StorageRoot:      os.Getenv("STORAGE_ROOT"),
+		WorkerCount:      getEnvInt("WORKER_COUNT", 1),
+		ConcurrencyLimit: getEnvInt("CONCURRENCY_LIMIT", 2),
+		LeaseDuration:    getEnvDuration("LEASE_DURATION", 5*time.Minute),
+		MaxUploadSize:    getEnvInt64("MAX_UPLOAD_SIZE", 52428800), // 50 MB
+		APIKey:           os.Getenv("API_KEY"),
+		FFmpegPath:       getEnv("FFMPEG_PATH", "ffmpeg"),
+		FFprobePath:      getEnv("FFPROBE_PATH", "ffprobe"),
+		LogLevel:         getEnv("LOG_LEVEL", "info"),
 	}
 
 	if err := cfg.validate(); err != nil {
@@ -61,8 +60,11 @@ func (c *Config) validate() error {
 	if c.WorkerCount < 1 {
 		return fmt.Errorf("WORKER_COUNT must be >= 1")
 	}
-	if c.MaxUploadSizeMB <= 0 {
-		return fmt.Errorf("MAX_UPLOAD_SIZE_MB must be > 0")
+	if c.ConcurrencyLimit < 1 {
+		return fmt.Errorf("CONCURRENCY_LIMIT must be >= 1")
+	}
+	if c.MaxUploadSize <= 0 {
+		return fmt.Errorf("MAX_UPLOAD_SIZE must be > 0")
 	}
 	return nil
 }

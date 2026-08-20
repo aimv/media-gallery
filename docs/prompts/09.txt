@@ -1,0 +1,15 @@
+/opsx:propose -> /opsx:apply
+Мы успешно завершили Спринт 4. Переходим к Спринту 5 (CMS-модуль / Контентные блоки) и параллельно проводим рефакторинг для устранения хардкода (в соответствии с принципами 12-Factor App).
+
+Нам необходимо реализовать:
+1. Конфигурация: Обнови `internal/infrastructure/config/config.go` и `.env.example`. Добавь туда новые переменные:
+   - `MAX_UPLOAD_SIZE` (тип int64, размер в байтах, дефолтное значение 52428800 — это 50MB).
+   - `CONCURRENCY_LIMIT` (тип int, лимит одновременно работающих горутин-воркеров видео, дефолт 2).
+2. Рефакторинг хендлера: Обнови `internal/infrastructure/delivery/http/v1/media_handler.go`, чтобы он читал лимит размера файла из `cfg.MaxUploadSize`, а не использовал захардкоженные 50MB.
+3. CMS-модуль в БД: В репозиторий миграций допишем логику, но пока реализуем код репозитория `internal/infrastructure/persistence/postgres/cms_repository.go` для таблицы `content_blocks` (поля: id, block_type, title, content [JSONB], media_id [UUID, null], created_at, updated_at).
+4. CMS REST API: Создай `internal/infrastructure/delivery/http/v1/cms_handler.go` с методами:
+   - `POST /api/cms/blocks` — создание или обновление блока страницы.
+   - `GET /api/cms/blocks/{id}` — получение блока (должен отдавать текст блока и метаданные привязанного медиафайла через SQL JOIN с таблицей `media_assets`).
+5. Точка входа API: Обнови `cmd/api/main.go`, чтобы пробросить `MaxUploadSize` в медиа-хендлер, инициализировать `CMSRepository`, подключить новые CMS-роуты к HTTP-серверу.
+
+Пиши чистый идиоматичный код под наш модуль github.com/aimv/media-gallery. Выдай готовый код файлов в Markdown-блоках.

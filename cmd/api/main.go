@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -10,7 +11,7 @@ import (
 	"time"
 
 	"github.com/aimv/media-gallery/internal/infrastructure/config"
-	"github.com/aimv/media-gallery/internal/infrastructure/delivery/http/v1"
+	v1 "github.com/aimv/media-gallery/internal/infrastructure/delivery/http/v1"
 	"github.com/aimv/media-gallery/internal/infrastructure/persistence/postgres"
 	"github.com/aimv/media-gallery/internal/infrastructure/storage"
 	"github.com/aimv/media-gallery/internal/pkg/logger"
@@ -19,17 +20,14 @@ import (
 )
 
 func main() {
-	// Загрузка конфигурации
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("config load: %v", err)
 	}
-
-	// Инициализация логгера
 	logger := logger.New(cfg.LogLevel)
 	logger.Info("starting api service")
 
-	// Запуск миграций
+	// Миграции
 	migrationsDir := "internal/infrastructure/persistence/postgres/migrations"
 	if err := postgres.RunMigrations(cfg.DBDSN, migrationsDir); err != nil {
 		logger.Error("migrations failed", "error", err)
@@ -46,21 +44,26 @@ func main() {
 
 	// Инициализация инфраструктуры
 	mediaRepo := postgres.NewMediaRepository(pool)
+	//jobQueue := postgres.NewJobQueue(pool)
+	cmsRepo := postgres.NewCMSRepository(pool)
 	localStorage := storage.NewLocalStorage(cfg.StorageRoot)
 
-	// Слой usecase
+	// Usecases
 	mediaUsecase := media.NewMediaUsecase(localStorage, mediaRepo)
 
-	// HTTP слой
-	mediaHandler := v1.NewMediaHandler(mediaUsecase)
-	mux := http.NewServeMux()
-	mux.HandleFunc("/api/media/upload", mediaHandler.Upload)
+	// Handlers
+	mediaHandler := v1.NewMediaHandler(mediaUsecase, cfg.MaxUploadSize)
+	cmsHandler := v1.NewCMSHandler(cmsRepo)
 
-	// Healthcheck
+	// Роутер (Go 1.22+ паттерны)
+	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("ok"))
 	})
+	mux.HandleFunc("POST /api/media/upload", mediaHandler.Upload)
+	mux.HandleFunc("POST /api/cms/blocks", cmsHandler.SaveBlock)
+	mux.HandleFunc("GET /api/cms/blocks/{id}", cmsHandler.GetBlock)
 
 	server := &http.Server{
 		Addr:         ":" + cfg.HTTPPort,
@@ -69,10 +72,9 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 	}
 
-	// Graceful shutdown
 	go func() {
 		logger.Info("http server listening", "port", cfg.HTTPPort)
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logger.Error("server error", "error", err)
 			os.Exit(1)
 		}

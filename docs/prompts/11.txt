@@ -1,0 +1,11 @@
+/opsx:propose -> /opsx:apply
+Задача: Синхронизировать SQL-запросы в cms_repository.go со схемой базы данных из 2_DESIGN.md.
+
+Текущая проблема: База данных возвращает ошибку `column "title" of relation "content_blocks" does not exist`. В нашей утвержденной SQL-миграции таблица `content_blocks` имеет только поля: `id`, `block_type`, `content` (JSONB), `media_id` (UUID), `created_at`, `updated_at`. Отдельной колонки `title` в таблице нет — поля заголовка должны сериализоваться и храниться целиком внутри JSONB-колонки `content`.
+
+Твоя задача:
+1. Исправь методы `Save` и `GetByIDWithMedia` в файле `internal/infrastructure/persistence/postgres/cms_repository.go`.
+2. Убери колонку `title` из SQL-запросов INSERT / UPDATE / SELECT.
+3. Поля заголовка (Title) и подзаголовка должны полностью уходить в базу в составе маршаллированного JSON для поля `content`.
+
+Выдай только исправленный код файла `cms_repository.go`.
