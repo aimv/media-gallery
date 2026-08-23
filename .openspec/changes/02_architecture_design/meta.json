@@ -1,0 +1,13 @@
+{
+  "change_id": "architecture_design",
+  "status": "applied",
+  "timestamp": "2026-08-23T15:27:43Z",
+  "agent": {
+    "name": "Kilocode-Software-Architect",
+    "version": "1.26.0"
+  },
+  "execution": {
+    "model": "deepseek-reasoning",
+    "mode": "Spec-Driven"
+  }
+}
