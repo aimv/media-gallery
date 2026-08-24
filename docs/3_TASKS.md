@@ -6,19 +6,19 @@
 
 ## Спринт 1: Инфраструктурный каркас и контроль качества
 
-- [ ] **T1.1: Инициализация go.mod и структуры каталогов**  
+- [x] **T1.1: Инициализация go.mod и структуры каталогов**  
   Создать файл `go.mod` с именем модуля `media-gallery`. Создать дерево каталогов в соответствии с разделом 2 документа `docs/2_DESIGN.md`: `cmd/api`, `cmd/worker`, `internal/domain`, `internal/usecase`, `internal/infrastructure`, `internal/pkg`.  
   **DoD:** Проект компилируется без ошибок (`go build ./...`). Структура папок совпадает с дизайном.
 
-- [ ] **T1.2: Настройка Makefile**  
+- [x] **T1.2: Настройка Makefile**  
   Создать `Makefile` с целями: `build` (сборка API и worker), `test` (запуск тестов), `lint` (запуск golangci-lint), `run-api`, `run-worker`, `migrate-up`, `migrate-down`.  
   **DoD:** Команда `make build` успешно собирает оба бинарных файла.
 
-- [ ] **T1.3: Создание .golangci.yml**  
+- [x] **T1.3: Создание .golangci.yml**  
   Добавить конфигурацию линтера `golangci-lint` с включёнными линтерами: `govet`, `errcheck`, `staticcheck`, `ineffassign`, `misspell`, `gocyclo` (порог 15), `revive`.  
   **DoD:** `golangci-lint run` не выявляет ошибок в пустом проекте.
 
-- [ ] **T1.4: Реализация структурированного логгера на slog**  
+- [x] **T1.4: Реализация структурированного логгера на slog**  
   Создать пакет `internal/pkg/logger`, оборачивающий стандартный `log/slog` с настройкой уровня, формата (JSON/text) и добавлением request ID.  
   **DoD:** Логгер инициализируется из конфигурации и пишет в stdout.
 
