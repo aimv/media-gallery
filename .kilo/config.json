@@ -1,0 +1,20 @@
+{
+  "agent": {
+    "name": "Kilocode-Go-Expert",
+    "version": "1.26.0",
+    "mode": "Spec-Driven",
+    "fallback_model": "deepseek-reasoning"
+  },
+  "project": {
+    "language": "go",
+    "go_version": "1.26",
+    "architecture_pattern": "Clean Architecture / DDD",
+    "source_root": "internal",
+    "entrypoints": ["cmd/api/main.go", "cmd/worker/main.go"]
+  },
+  "automation": {
+    "auto_lint_on_apply": true,
+    "generate_tests_for_usecases": true,
+    "adr_required": true
+  }
+}
