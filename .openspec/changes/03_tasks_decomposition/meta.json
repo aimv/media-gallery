@@ -1,0 +1,13 @@
+{
+  "change_id": "tasks_decomposition",
+  "status": "applied",
+  "timestamp": "2026-08-24T12:12:41+04:00",
+  "agent": {
+    "name": "Kilocode-Technical-Lead",
+    "version": "1.26.0"
+  },
+  "execution": {
+    "model": "deepseek-reasoning",
+    "mode": "Spec-Driven"
+  }
+}
