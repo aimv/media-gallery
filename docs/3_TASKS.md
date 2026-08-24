@@ -26,7 +26,7 @@
   Реализовать `internal/pkg/apperror` с типами: `AppError` (код, сообщение, HTTP-статус), предопределённые ошибки (`ErrNotFound`, `ErrInvalidInput`, `ErrConflict` и т.д.).  
   **DoD:** Ошибки имеют машиночитаемые коды и человекочитаемые сообщения.
 
-- [ ] **T1.6: Настройка CI/CD GitHub Actions**  
+- [x] **T1.6: Настройка CI/CD GitHub Actions**  
   Создать `.github/workflows/ci.yml` с шагами: checkout, установка Go, запуск `go vet`, `golangci-lint`, `go test ./...`.  
   **DoD:** Workflow запускается при push и pull request, все шаги проходят.
 
