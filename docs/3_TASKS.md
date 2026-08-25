@@ -54,7 +54,7 @@
   В `cmd/api/main.go` и `cmd/worker/main.go` добавить вызов применения миграций из директории `internal/infrastructure/persistence/postgres/migrations/`.  
   **DoD:** При старте приложения миграции автоматически накатываются.
 
-- [ ] **T2.4: SQL-миграция 0001_init.up.sql**  
+- [x] **T2.4: SQL-миграция 0001_init.up.sql**  
   Создать файл миграции `0001_init.up.sql` со всеми таблицами, enum-типами, индексами и внешними ключами согласно разделу 4 документа `docs/2_DESIGN.md`: `media_assets`, `processing_jobs`, `content_blocks`, `block_media_links`.  
   **DoD:** SQL-скрипт выполняется без ошибок, структура БД соответствует дизайну.
 

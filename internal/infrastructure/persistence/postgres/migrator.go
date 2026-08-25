@@ -13,6 +13,10 @@ import (
 // RunMigrations применяет SQL-миграции из указанной директории.
 func RunMigrations(dbDSN string) error {
 	slog.Info("Running database migrations", "source", "file://internal/infrastructure/persistence/postgres/migrations")
+
+	// TODO: В рамках MVP путь зафиксирован в инфраструктурном адаптере.
+	// В качестве следующего шага техдолга запланирован перевод миграций на go:embed для автономности бинарника.
+
 	m, err := migrate.New("file://internal/infrastructure/persistence/postgres/migrations", dbDSN)
 	if err != nil {
 		return err

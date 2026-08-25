@@ -1,5 +1,34 @@
+# Go
 bin/
-.env
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.*
+vendor/
 
-# misc local files
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Env
+.env
+.env.local
+
+# App runtime
+tmp/
+originals/
+hls/
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+
+# Other local files
 temporary-local/
