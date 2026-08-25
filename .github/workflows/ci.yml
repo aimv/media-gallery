@@ -23,6 +23,11 @@ jobs:
         run: |
           curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.13.2
 
+      - name: Install golang-migrate CLI
+        run: |
+          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.2/migrate.linux-amd64.tar.gz | tar xvz
+          mv migrate $(go env GOPATH)/bin/migrate
+
       - name: Run Linter
         run: $(go env GOPATH)/bin/golangci-lint run
 

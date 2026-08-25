@@ -1,3 +1,5 @@
+BEGIN; -- Открываем атомарную транзакцию
+
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ============================================================
@@ -101,3 +103,4 @@ CREATE INDEX idx_block_media_links_asset ON block_media_links (asset_id);
 -- Индекс для выборки медиафайлов блока с сортировкой
 CREATE INDEX idx_block_media_links_block ON block_media_links (block_id, position);
 
+COMMIT; -- Фиксируем изменения только в случае полного успеха!
