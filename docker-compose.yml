@@ -3,9 +3,9 @@ services:
     image: postgres:16-alpine
     container_name: media_gallery_postgres
     environment:
-      POSTGRES_USER: media_user
-      POSTGRES_PASSWORD: media_pass
-      POSTGRES_DB: media_gallery
+      POSTGRES_USER: ${DB_USER:-media_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-media_pass}
+      POSTGRES_DB: ${DB_NAME:-media_gallery}
     ports:
       - "5432:5432"
     volumes:

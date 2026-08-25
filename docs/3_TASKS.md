@@ -42,11 +42,11 @@
 
 ## Спринт 2: Persistence Слой и СУБД
 
-- [ ] **T2.1: Docker Compose для PostgreSQL 16**  
+- [x] **T2.1: Docker Compose для PostgreSQL 16**  
   Создать `docker-compose.yml` с сервисом `postgres` (образ `postgres:16-alpine`), environment (POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB), volume для данных и healthcheck (`pg_isready`).  
   **DoD:** `docker compose up postgres` поднимает БД, healthcheck проходит.
 
-- [ ] **T2.2: Загрузка конфигурации из .env**  
+- [x] **T2.2: Загрузка конфигурации из .env**  
   Реализовать пакет `internal/infrastructure/config`, который с помощью `godotenv` загружает `.env` и парсит переменные окружения в структуру `Config` (DSN, порты, пути, лимиты).  
   **DoD:** Конфигурация доступна в main, значения по умолчанию заданы.
 
