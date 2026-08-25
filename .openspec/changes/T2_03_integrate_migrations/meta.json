@@ -1,0 +1,13 @@
+{
+  "change_id": "T2.3_integrate_migrations",
+  "status": "applied",
+  "timestamp": "2026-08-25T12:55:30+04:00",
+  "agent": {
+    "name": "Kilocode-Go-Developer",
+    "version": "1.26.0"
+  },
+  "execution": {
+    "model": "deepseek-reasoning",
+    "mode": "Spec-Driven"
+  }
+}

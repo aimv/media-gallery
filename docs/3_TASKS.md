@@ -50,7 +50,7 @@
   Реализовать пакет `internal/infrastructure/config`, который с помощью `godotenv` загружает `.env` и парсит переменные окружения в структуру `Config` (DSN, порты, пути, лимиты).  
   **DoD:** Конфигурация доступна в main, значения по умолчанию заданы.
 
-- [ ] **T2.3: Интеграция golang-migrate**  
+- [x] **T2.3: Интеграция golang-migrate**  
   В `cmd/api/main.go` и `cmd/worker/main.go` добавить вызов применения миграций из директории `internal/infrastructure/persistence/postgres/migrations/`.  
   **DoD:** При старте приложения миграции автоматически накатываются.
 

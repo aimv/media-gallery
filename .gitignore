@@ -1,3 +1,5 @@
-# misc local files
-temporary-local
+bin/
 .env
+
+# misc local files
+temporary-local/
