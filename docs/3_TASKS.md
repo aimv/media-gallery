@@ -82,7 +82,7 @@
   Создать `internal/infrastructure/filestorage/local_fs.go` с методами, использующими стандартную библиотеку `os` и `io`. Реализовать потоковое копирование через `io.Copy`, атомарное перемещение (`os.Rename`).  
   **DoD:** Файлы сохраняются, перемещаются, удаляются; пути защищены от path traversal.
 
-- [ ] **T3.4: Реализация MediaRepository для PostgreSQL**  
+- [x] **T3.4: Реализация MediaRepository для PostgreSQL**  
   Создать `internal/infrastructure/persistence/postgres/media_repository_pg.go` с методами, выполняющими SQL-запросы через `pgxpool`. Включить маппинг строк БД в domain-сущности.  
   **DoD:** Все CRUD-операции работают с БД, тесты на интеграцию проходят.
 
