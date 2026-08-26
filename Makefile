@@ -1,3 +1,6 @@
+CGO_ENABLED=1
+export CGO_ENABLED
+
 .PHONY: build test lint run-api run-worker
 
 # Автоматически подгружаем переменные из локального .env файла
