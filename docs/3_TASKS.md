@@ -74,7 +74,7 @@
   В `internal/domain/entity/media_asset.go` и `enums.go` определить структуры `MediaAsset`, `MediaType` (image/jpeg, image/png, video/mp4), `MediaStatus` (uploaded, queued, processing, ready, failed, deleting) и методы перехода статусов.  
   **DoD:** Определены все поля из `docs/2_DESIGN.md`, есть валидация допустимых значений.
 
-- [ ] **T3.2: Интерфейсы MediaRepository и FileStorage**  
+- [x] **T3.2: Интерфейсы MediaRepository и FileStorage**  
   В `internal/domain/repository/media_repository.go` и `internal/domain/service/file_storage.go` объявить интерфейсы с сигнатурами методов (Create, GetByID, List, UpdateStatus и т.д.; Save, Open, Delete, Move, Exists, EnsureDir).  
   **DoD:** Интерфейсы компилируются, domain не импортирует внешние пакеты.
 
