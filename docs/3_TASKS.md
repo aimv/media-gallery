@@ -78,7 +78,7 @@
   В `internal/domain/repository/media_repository.go` и `internal/domain/service/file_storage.go` объявить интерфейсы с сигнатурами методов (Create, GetByID, List, UpdateStatus и т.д.; Save, Open, Delete, Move, Exists, EnsureDir).  
   **DoD:** Интерфейсы компилируются, domain не импортирует внешние пакеты.
 
-- [ ] **T3.3: Реализация FileStorage для локального диска**  
+- [x] **T3.3: Реализация FileStorage для локального диска**  
   Создать `internal/infrastructure/filestorage/local_fs.go` с методами, использующими стандартную библиотеку `os` и `io`. Реализовать потоковое копирование через `io.Copy`, атомарное перемещение (`os.Rename`).  
   **DoD:** Файлы сохраняются, перемещаются, удаляются; пути защищены от path traversal.
 
