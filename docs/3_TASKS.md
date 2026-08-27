@@ -90,7 +90,7 @@
   Реализовать `internal/usecase/media/upload.go` с функцией `Upload(ctx, file io.Reader, filename, contentType string, size int64)`. Логика: валидация (расширение, Content-Type, magic bytes), сохранение файла через FileStorage, создание записи в БД, постановка задачи в очередь (для видео).  
   **DoD:** UseCase вызывает порты, не зависит от HTTP.
 
-- [ ] **T3.6: HTTP-хендлер POST /api/v1/media/upload**  
+- [x] **T3.6: HTTP-хендлер POST /api/v1/media/upload**  
   Создать `internal/infrastructure/http/handler/media_upload.go`, который парсит multipart-форму, ограничивает размер тела, вызывает usecase и возвращает JSON с данными медиафайла.  
   **DoD:** Эндпоинт принимает файл, сохраняет, возвращает 201 и JSON с ID, статусом.
 

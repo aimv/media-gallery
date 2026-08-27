@@ -8,22 +8,22 @@ import (
 
 // MediaAsset представляет медиафайл (изображение или видео) и его метаданные.
 type MediaAsset struct {
-	ID               uuid.UUID      // уникальный идентификатор
-	OriginalFilename string         // исходное имя файла
-	MediaType        MediaType      // тип медиафайла
-	Status           MediaStatus    // текущий статус обработки
-	StoragePath      string         // относительный путь к оригиналу
-	HlsPath          string         // относительный путь к HLS-плейлисту (пусто, если не готово)
-	SizeBytes        int64          // размер файла в байтах
-	ChecksumSHA256   string         // SHA-256 чексумма файла
-	Width            int            // ширина (для изображений и видео)
-	Height           int            // высота (для изображений и видео)
-	DurationMS       int64          // длительность в миллисекундах (для видео)
-	Codec            string         // основной кодек (для видео)
-	Metadata         map[string]any // дополнительные метаданные (JSONB)
-	CreatedAt        time.Time      // дата создания
-	UpdatedAt        time.Time      // дата последнего обновления
-	DeletedAt        *time.Time     // дата мягкого удаления (nil, если активен)
+	ID               uuid.UUID      `json:"id"`                        // уникальный идентификатор
+	OriginalFilename string         `json:"original_filename"`         // исходное имя файла
+	MediaType        MediaType      `json:"media_type"`                // тип медиафайла
+	Status           MediaStatus    `json:"status"`                    // текущий статус обработки
+	StoragePath      string         `json:"storage_path"`              // относительный путь к оригиналу
+	HlsPath          string         `json:"hls_path,omitempty"`        // относительный путь к HLS-плейлисту (пусто, если не готово)
+	SizeBytes        int64          `json:"size_bytes"`                // размер файла в байтах
+	ChecksumSHA256   string         `json:"checksum_sha256,omitempty"` // SHA-256 чексумма файла
+	Width            int            `json:"width,omitempty"`           // ширина (для изображений и видео)
+	Height           int            `json:"height,omitempty"`          // высота (для изображений и видео)
+	DurationMS       int64          `json:"duration_ms,omitempty"`     // длительность в миллисекундах (для видео)
+	Codec            string         `json:"codec,omitempty"`           // основной кодек (для видео)
+	Metadata         map[string]any `json:"metadata"`                  // дополнительные метаданные (JSONB)
+	CreatedAt        time.Time      `json:"created_at"`                // дата создания
+	UpdatedAt        time.Time      `json:"updated_at"`                // дата последнего обновления
+	DeletedAt        *time.Time     `json:"deleted_at,omitempty"`      // дата мягкого удаления (nil, если активен)
 }
 
 // CanTransitionTo проверяет, допустим ли переход из текущего статуса в указанный.
