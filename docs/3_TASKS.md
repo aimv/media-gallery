@@ -86,7 +86,7 @@
   Создать `internal/infrastructure/persistence/postgres/media_repository_pg.go` с методами, выполняющими SQL-запросы через `pgxpool`. Включить маппинг строк БД в domain-сущности.  
   **DoD:** Все CRUD-операции работают с БД, тесты на интеграцию проходят.
 
-- [ ] **T3.5: UseCase загрузки медиа**  
+- [x] **T3.5: UseCase загрузки медиа**  
   Реализовать `internal/usecase/media/upload.go` с функцией `Upload(ctx, file io.Reader, filename, contentType string, size int64)`. Логика: валидация (расширение, Content-Type, magic bytes), сохранение файла через FileStorage, создание записи в БД, постановка задачи в очередь (для видео).  
   **DoD:** UseCase вызывает порты, не зависит от HTTP.
 
