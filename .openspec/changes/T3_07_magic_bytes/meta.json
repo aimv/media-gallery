@@ -1,0 +1,13 @@
+{
+  "change_id": "T3.7_magic_bytes",
+  "status": "applied",
+  "timestamp": "2026-08-28T09:14:23+04:00",
+  "agent": {
+    "name": "Kilocode-Go-Developer",
+    "version": "1.26.0"
+  },
+  "execution": {
+    "model": "deepseek-reasoning",
+    "mode": "Spec-Driven"
+  }
+}

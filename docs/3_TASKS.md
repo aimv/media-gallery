@@ -94,7 +94,7 @@
   Создать `internal/infrastructure/http/handler/media_upload.go`, который парсит multipart-форму, ограничивает размер тела, вызывает usecase и возвращает JSON с данными медиафайла.  
   **DoD:** Эндпоинт принимает файл, сохраняет, возвращает 201 и JSON с ID, статусом.
 
-- [ ] **T3.7: Валидация magic bytes**  
+- [x] **T3.7: Валидация magic bytes**  
   В составе пакета загрузки реализовать функцию `detectContentType(reader io.Reader) (MediaType, error)`, использующую `http.DetectContentType` и сигнатуры JPEG/PNG/MP4.  
   **DoD:** Файл с неверной сигнатурой отклоняется с ошибкой `ErrInvalidInput`.
 

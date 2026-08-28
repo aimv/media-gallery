@@ -1,17 +1,17 @@
+// internal/infrastructure/storage/local.go
+
 // Package storage предоставляет реализацию файлового хранилища на локальном диске.
 package storage
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 
-	"github.com/aimv/media-gallery/internal/pkg/apperror"
+	"github.com/aimv/media-gallery/internal/domain/entity"
 	"github.com/google/uuid"
 )
 
@@ -30,36 +30,21 @@ func NewLocalStorage(baseDir string) *LocalStorage {
 func (s *LocalStorage) Save(ctx context.Context, filename string, src io.Reader) (string, error) {
 	_ = ctx // Явное глушение неиспользуемого контекста для линтера revive
 
-	// Читаем первые 512 байт для определения MIME-типа.
-	head := make([]byte, 512)
-	n, err := io.ReadFull(src, head)
-	if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, io.ErrUnexpectedEOF) {
-		return "", fmt.Errorf("read file header: %w", err)
-	}
-	head = head[:n]
-
-	// Проверяем Magic Bytes.
-	contentType := http.DetectContentType(head)
-	switch contentType {
-	case "image/jpeg", "image/png", "video/mp4":
-		// допустимо
-	default:
-		return "", apperror.NewAppError(
-			apperror.ErrInvalidInput.Code,
-			fmt.Sprintf("unsupported content type: %s", contentType),
-			apperror.ErrInvalidInput.HTTPStatus,
-		)
+	// Определяем тип контента и получаем восстановленный поток (с заголовком).
+	mediaType, dataReader, err := entity.DetectContentType(src)
+	if err != nil {
+		return "", err
 	}
 
 	// Определяем расширение из исходного имени файла.
 	ext := filepath.Ext(filename)
 	if ext == "" {
-		switch contentType {
-		case "image/jpeg":
+		switch mediaType {
+		case entity.MediaTypeJPEG:
 			ext = ".jpg"
-		case "image/png":
+		case entity.MediaTypePNG:
 			ext = ".png"
-		case "video/mp4":
+		case entity.MediaTypeMP4:
 			ext = ".mp4"
 		}
 	}
@@ -78,26 +63,17 @@ func (s *LocalStorage) Save(ctx context.Context, filename string, src io.Reader)
 		return "", fmt.Errorf("create dir: %w", err)
 	}
 
-	// Создаём файл защищенным методом.
+	// Создаём файл.
 	f, err := os.Create(fullPath)
 	if err != nil {
 		return "", fmt.Errorf("create file: %w", err)
 	}
 
-	// Безопасная обработка закрытия файла через анонимную функцию дефера.
-	defer func() {
-		if closeErr := f.Close(); closeErr != nil {
-			// Ошибку закрытия дефера логируем или пробрасываем, если критично.
-			// Для errcheck достаточно того, что возвращаемое значение не проигнорировано.
-			_ = closeErr
-		}
-	}()
+	// Безопасное закрытие файла через отложенную функцию.
+	defer func() { _ = f.Close() }()
 
-	// Объединяем прочитанный заголовок и оставшийся поток.
-	combined := io.MultiReader(bytes.NewReader(head), src)
-
-	// Копируем данные.
-	if _, err := io.Copy(f, combined); err != nil {
+	// Копируем данные из восстановленного потока.
+	if _, err := io.Copy(f, dataReader); err != nil {
 		return "", fmt.Errorf("copy data: %w", err)
 	}
 
