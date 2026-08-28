@@ -20,7 +20,8 @@ func main() {
 	logger.InitLogger(cfg.LogLevel)
 	slog.Info("Starting API service...")
 
-	if err := postgres.RunMigrations(cfg.DBDSN); err != nil {
+	migrationsPath := "file://internal/infrastructure/persistence/postgres/migrations"
+	if err := postgres.RunMigrations(cfg.DBDSN, migrationsPath); err != nil {
 		slog.Error("Failed to run migrations", "error", err)
 		os.Exit(1)
 	}

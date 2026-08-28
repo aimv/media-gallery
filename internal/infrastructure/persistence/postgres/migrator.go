@@ -10,14 +10,11 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"       // Драйвер для чтения миграций из локальной файловой системы
 )
 
-// RunMigrations применяет SQL-миграции из указанной директории.
-func RunMigrations(dbDSN string) error {
-	slog.Info("Running database migrations", "source", "file://internal/infrastructure/persistence/postgres/migrations")
+// RunMigrations применяет SQL-миграции из указанного источника (например, "file://...") и DSN.
+func RunMigrations(dbDSN string, migrationsPath string) error {
+	slog.Info("Running database migrations", "source", migrationsPath)
 
-	// TODO: В рамках MVP путь зафиксирован в инфраструктурном адаптере.
-	// В качестве следующего шага техдолга запланирован перевод миграций на go:embed для автономности бинарника.
-
-	m, err := migrate.New("file://internal/infrastructure/persistence/postgres/migrations", dbDSN)
+	m, err := migrate.New(migrationsPath, dbDSN)
 	if err != nil {
 		return err
 	}

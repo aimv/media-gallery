@@ -102,7 +102,7 @@
   Написать тесты в `internal/usecase/media/upload_test.go`, используя моки FileStorage и MediaRepository. Проверить сценарии: валидный файл, неверный тип, превышение размера, ошибка сохранения.  
   **DoD:** Покрытие ключевых ветвей > 80%.
 
-- [ ] **T3.9: Интеграционные тесты для MediaRepository**  
+- [x] **T3.9: Интеграционные тесты для MediaRepository**  
   В `internal/infrastructure/persistence/postgres/media_repository_pg_test.go` написать тесты, использующие тестовую БД (или Docker). Проверить Create, GetByID, UpdateStatus, List с фильтрами.  
   **DoD:** Тесты проходят при запущенном PostgreSQL.
 
