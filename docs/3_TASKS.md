@@ -98,7 +98,7 @@
   В составе пакета загрузки реализовать функцию `detectContentType(reader io.Reader) (MediaType, error)`, использующую `http.DetectContentType` и сигнатуры JPEG/PNG/MP4.  
   **DoD:** Файл с неверной сигнатурой отклоняется с ошибкой `ErrInvalidInput`.
 
-- [ ] **T3.8: Юнит-тесты для валидации и usecase**  
+- [x] **T3.8: Юнит-тесты для валидации и usecase**  
   Написать тесты в `internal/usecase/media/upload_test.go`, используя моки FileStorage и MediaRepository. Проверить сценарии: валидный файл, неверный тип, превышение размера, ошибка сохранения.  
   **DoD:** Покрытие ключевых ветвей > 80%.
 

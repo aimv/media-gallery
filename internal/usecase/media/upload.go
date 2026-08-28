@@ -30,6 +30,10 @@ func (u *UploadUseCase) Execute(ctx context.Context, filename string, contentTyp
 		return nil, apperror.ErrInvalidInput
 	}
 
+	if size > entity.MaxUploadSizeBytes {
+		return nil, apperror.ErrInvalidInput
+	}
+
 	asset := &entity.MediaAsset{
 		ID:               uuid.New(),
 		OriginalFilename: filename,

@@ -6,11 +6,10 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/aimv/media-gallery/internal/domain/entity"
 	"github.com/aimv/media-gallery/internal/pkg/apperror"
 	"github.com/aimv/media-gallery/internal/usecase/media"
 )
-
-const maxUploadSize = 500 << 20 // 500 МБ
 
 // MediaHandler обрабатывает запросы к медиафайлам.
 type MediaHandler struct {
@@ -24,7 +23,7 @@ func NewMediaHandler(uploadUC *media.UploadUseCase) *MediaHandler {
 
 // Upload обрабатывает загрузку нового медиафайла.
 func (h *MediaHandler) Upload(w http.ResponseWriter, r *http.Request) {
-	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+	r.Body = http.MaxBytesReader(w, r.Body, entity.MaxUploadSizeBytes)
 
 	file, header, err := r.FormFile("file")
 	if err != nil {

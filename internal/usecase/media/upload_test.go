@@ -19,33 +19,21 @@ type mockMediaRepository struct {
 	savedAsset *entity.MediaAsset
 }
 
-func (m *mockMediaRepository) Save(ctx context.Context, asset *entity.MediaAsset) error {
-	_ = ctx
+func (m *mockMediaRepository) Save(_ context.Context, asset *entity.MediaAsset) error {
 	m.saveCalled = true
 	m.savedAsset = asset
 	return m.saveErr
 }
 
-func (m *mockMediaRepository) FindByID(ctx context.Context, id uuid.UUID) (*entity.MediaAsset, error) {
-	_ = ctx
-	_ = id
+func (m *mockMediaRepository) FindByID(_ context.Context, _ uuid.UUID) (*entity.MediaAsset, error) {
 	return nil, nil
 }
 
-func (m *mockMediaRepository) UpdateStatus(ctx context.Context, id uuid.UUID, status entity.MediaStatus) error {
-	_ = ctx
-	_ = id
-	_ = status
+func (m *mockMediaRepository) UpdateStatus(_ context.Context, _ uuid.UUID, _ entity.MediaStatus) error {
 	return nil
 }
 
-func (m *mockMediaRepository) UpdateMetadata(ctx context.Context, id uuid.UUID, width, height int, duration int64, codec string) error {
-	_ = ctx
-	_ = id
-	_ = width
-	_ = height
-	_ = duration
-	_ = codec
+func (m *mockMediaRepository) UpdateMetadata(_ context.Context, _ uuid.UUID, _ int, _ int, _ int64, _ string) error {
 	return nil
 }
 
@@ -55,17 +43,12 @@ type mockFileStorage struct {
 	saveErr    error
 }
 
-func (m *mockFileStorage) Save(ctx context.Context, filename string, src io.Reader) (string, error) {
-	_ = ctx
-	_ = filename
-	_ = src
+func (m *mockFileStorage) Save(_ context.Context, _ string, _ io.Reader) (string, error) {
 	m.saveCalled = true
 	return m.savePath, m.saveErr
 }
 
-func (m *mockFileStorage) Delete(ctx context.Context, storagePath string) error {
-	_ = ctx
-	_ = storagePath
+func (m *mockFileStorage) Delete(_ context.Context, _ string) error {
 	return nil
 }
 
@@ -73,49 +56,70 @@ func (m *mockFileStorage) Delete(ctx context.Context, storagePath string) error 
 
 func TestUploadUseCase_Execute(t *testing.T) {
 	tests := []struct {
-		name          string
-		contentType   string
-		storagePath   string
-		storageErr    error
-		repoErr       error
-		wantErr       bool
-		wantRepoSaved bool
+		name              string
+		contentType       string
+		size              int64
+		storagePath       string
+		storageErr        error
+		repoErr           error
+		wantErr           bool
+		wantRepoSaved     bool
+		wantStorageCalled bool
 	}{
 		{
-			name:          "success",
-			contentType:   "image/png",
-			storagePath:   "uploads/test.png",
-			storageErr:    nil,
-			repoErr:       nil,
-			wantErr:       false,
-			wantRepoSaved: true,
+			name:              "success",
+			contentType:       "image/png",
+			size:              1024,
+			storagePath:       "uploads/test.png",
+			storageErr:        nil,
+			repoErr:           nil,
+			wantErr:           false,
+			wantRepoSaved:     true,
+			wantStorageCalled: true,
 		},
 		{
-			name:          "storage error",
-			contentType:   "image/png",
-			storagePath:   "",
-			storageErr:    errors.New("disk full"),
-			repoErr:       nil,
-			wantErr:       true,
-			wantRepoSaved: false,
+			name:              "storage error",
+			contentType:       "image/png",
+			size:              1024,
+			storagePath:       "",
+			storageErr:        errors.New("disk full"),
+			repoErr:           nil,
+			wantErr:           true,
+			wantRepoSaved:     false,
+			wantStorageCalled: true,
 		},
 		{
-			name:          "invalid content type",
-			contentType:   "text/plain",
-			storagePath:   "",
-			storageErr:    nil,
-			repoErr:       nil,
-			wantErr:       true,
-			wantRepoSaved: false,
+			name:              "invalid content type",
+			contentType:       "text/plain",
+			size:              1024,
+			storagePath:       "",
+			storageErr:        nil,
+			repoErr:           nil,
+			wantErr:           true,
+			wantRepoSaved:     false,
+			wantStorageCalled: false,
 		},
 		{
-			name:          "repository error",
-			contentType:   "image/jpeg",
-			storagePath:   "uploads/test.jpg",
-			storageErr:    nil,
-			repoErr:       errors.New("db error"),
-			wantErr:       true,
-			wantRepoSaved: true, // repo.Save всё равно вызывается, хоть и возвращает ошибку
+			name:              "repository error",
+			contentType:       "image/jpeg",
+			size:              1024,
+			storagePath:       "uploads/test.jpg",
+			storageErr:        nil,
+			repoErr:           errors.New("db error"),
+			wantErr:           true,
+			wantRepoSaved:     true,
+			wantStorageCalled: true,
+		},
+		{
+			name:              "file size limit exceeded",
+			contentType:       "video/mp4",
+			size:              entity.MaxUploadSizeBytes + 1,
+			storagePath:       "",
+			storageErr:        nil,
+			repoErr:           nil,
+			wantErr:           true,
+			wantRepoSaved:     false,
+			wantStorageCalled: false,
 		},
 	}
 
@@ -125,7 +129,7 @@ func TestUploadUseCase_Execute(t *testing.T) {
 			storage := &mockFileStorage{savePath: tt.storagePath, saveErr: tt.storageErr}
 
 			uc := NewUploadUseCase(repo, storage)
-			asset, err := uc.Execute(context.Background(), "test.bin", tt.contentType, 1024, bytes.NewReader([]byte("data")))
+			asset, err := uc.Execute(context.Background(), "test.bin", tt.contentType, tt.size, bytes.NewReader([]byte("data")))
 
 			if tt.wantErr {
 				if err == nil {
@@ -153,10 +157,8 @@ func TestUploadUseCase_Execute(t *testing.T) {
 				t.Errorf("repo.saveCalled = %v, want %v", repo.saveCalled, tt.wantRepoSaved)
 			}
 
-			// Если репозиторий не вызывался, но тип контента был валидным,
-			// значит сбой произошел именно в хранилище, и оно должно было быть вызвано.
-			if !tt.wantRepoSaved && tt.contentType != "text/plain" && !storage.saveCalled {
-				t.Error("storage.Save should have been called")
+			if storage.saveCalled != tt.wantStorageCalled {
+				t.Errorf("storage.saveCalled = %v, want %v", storage.saveCalled, tt.wantStorageCalled)
 			}
 		})
 	}
