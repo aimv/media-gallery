@@ -45,15 +45,15 @@ func TestIntegration_MediaRepository_Lifecycle(t *testing.T) {
 		t.Fatalf("failed to load config: %v", err)
 	}
 
-	pool, err := NewPool(cfg.DBDSN)
+	pool, err := NewPool(cfg.TestDBDSN)
 	if err != nil {
 		t.Skipf("database not available, skipping integration test: %v", err)
 	}
 	defer pool.Close()
 
-	// Применяем миграции с абсолютным путём.
+	// Применяем миграции для гарантии наличия схемы.
 	migrationsPath := "file://" + filepath.Join(root, "internal/infrastructure/persistence/postgres/migrations")
-	if err := RunMigrations(cfg.DBDSN, migrationsPath); err != nil {
+	if err := RunMigrations(cfg.TestDBDSN, migrationsPath); err != nil {
 		t.Fatalf("failed to run migrations: %v", err)
 	}
 

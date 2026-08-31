@@ -12,7 +12,8 @@ import (
 
 // Config содержит все параметры, необходимые для работы сервиса.
 type Config struct {
-	DBDSN          string // строка подключения к PostgreSQL
+	DBDSN          string // строка подключения к основной PostgreSQL
+	TestDBDSN      string // строка подключения к тестовой PostgreSQL
 	HTTPServerPort string // порт HTTP API
 	APIKey         string // ключ для авторизации запросов
 	StorageDir     string // базовая директория для файлового хранилища
@@ -25,7 +26,6 @@ type Config struct {
 // и переменных окружения. При отсутствии .env файла ошибка игнорируется,
 // значения берутся напрямую из среды.
 func Load() (*Config, error) {
-	// Пытаемся загрузить .env; если файла нет — не считаем это ошибкой.
 	_ = godotenv.Load()
 
 	// Читаем атомарные параметры СУБД для динамической сборки DSN
@@ -38,8 +38,14 @@ func Load() (*Config, error) {
 	// Динамически склеиваем валидную строку подключения по стандарту URL
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", dbUser, dbPass, dbHost, dbPort, dbName)
 
+	// Параметры тестовой БД
+	dbTestPort := getEnv("DB_TEST_PORT", "5433")
+	testDBName := getEnv("TEST_DB_NAME", "media_gallery_test")
+	testDSN := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", dbUser, dbPass, dbHost, dbTestPort, testDBName)
+
 	cfg := &Config{
 		DBDSN:          dsn,
+		TestDBDSN:      testDSN,
 		HTTPServerPort: getEnv("HTTP_SERVER_PORT", "8080"),
 		APIKey:         getEnv("API_KEY", ""),
 		StorageDir:     getEnv("STORAGE_DIR", "./storage"),

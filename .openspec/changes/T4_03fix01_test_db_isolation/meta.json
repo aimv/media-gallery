@@ -1,0 +1,13 @@
+{
+  "change_id": "T4.3fix01_test_db_isolation",
+  "status": "applied",
+  "timestamp": "2026-08-31T16:12:05+04:00",
+  "agent": {
+    "name": "Kilocode-Go-Expert",
+    "version": "1.26.0"
+  },
+  "execution": {
+    "model": "deepseek-reasoning",
+    "mode": "Spec-Driven"
+  }
+}
