@@ -114,7 +114,7 @@
   Определить `processing_job.go` с полями (ID, AssetID, Status, Attempt, LeaseOwner, LeaseExpiresAt, Error, таймстемпы) и enum `JobStatus` (queued, processing, success, failed).  
   **DoD:** Сущность готова, статусы валидируются.
 
-- [ ] **T4.2: Реализация JobQueue с SKIP LOCKED**  
+- [x] **T4.2: Реализация JobQueue с SKIP LOCKED**  
   Создать `internal/infrastructure/persistence/postgres/job_queue_pg.go`, реализующий интерфейс `JobQueue`. Метод `ClaimNext` должен выполнять атомарный `UPDATE ... WHERE id = (SELECT ... FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING *`.  
   **DoD:** Метод возвращает задачу или nil, тесты подтверждают конкурентную безопасность.
 
