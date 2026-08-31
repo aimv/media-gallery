@@ -1,0 +1,13 @@
+{
+  "change_id": "T4_03_ffmpeg_processor",
+  "status": "applied",
+  "timestamp": "2026-08-31T14:14:12+04:00",
+  "agent": {
+    "name": "Kilocode-Go-Expert",
+    "version": "1.26.0"
+  },
+  "execution": {
+    "model": "deepseek-reasoning",
+    "mode": "Spec-Driven"
+  }
+}

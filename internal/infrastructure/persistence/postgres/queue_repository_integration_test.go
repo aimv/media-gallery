@@ -39,7 +39,17 @@ func TestIntegration_QueueRepository_Lifecycle(t *testing.T) {
 	repo := NewQueueRepository(pool)
 	ctx := context.Background()
 
-	// Список идентификаторов для очистки.
+	// Очищаем таблицы перед тестом, чтобы предыдущие неудачные запуски не мешали.
+	_, err = pool.Exec(ctx, `DELETE FROM processing_jobs`)
+	if err != nil {
+		t.Fatalf("failed to clean processing_jobs: %v", err)
+	}
+	_, err = pool.Exec(ctx, `DELETE FROM media_assets`)
+	if err != nil {
+		t.Fatalf("failed to clean media_assets: %v", err)
+	}
+
+	// Списки идентификаторов для очистки после теста.
 	var cleanupAssetIDs []uuid.UUID
 	var cleanupJobIDs []uuid.UUID
 

@@ -18,6 +18,7 @@ type Config struct {
 	StorageDir     string // базовая директория для файлового хранилища
 	MaxUploadSize  int64  // максимальный размер загружаемого файла в байтах
 	LogLevel       string // уровень логирования: debug, info, warn, error
+	FFMPEGThreads  int    // количество потоков для ffmpeg
 }
 
 // Load загружает конфигурацию из .env файла (если он есть)
@@ -44,6 +45,7 @@ func Load() (*Config, error) {
 		StorageDir:     getEnv("STORAGE_DIR", "./storage"),
 		MaxUploadSize:  getEnvInt64("MAX_UPLOAD_SIZE", 524288000), // 500 МБ
 		LogLevel:       getEnv("LOG_LEVEL", "info"),
+		FFMPEGThreads:  getEnvInt("FFMPEG_THREADS", 2),
 	}
 
 	if cfg.DBDSN == "" {
@@ -66,6 +68,17 @@ func getEnv(key, defaultValue string) string {
 func getEnvInt64(key string, defaultValue int64) int64 {
 	if v := os.Getenv(key); v != "" {
 		if n, err := strconv.ParseInt(v, 10, 64); err == nil {
+			return n
+		}
+	}
+	return defaultValue
+}
+
+// getEnvInt возвращает целочисленное значение переменной окружения (int)
+// или defaultValue, если переменная пуста или содержит нечисловое значение.
+func getEnvInt(key string, defaultValue int) int {
+	if v := os.Getenv(key); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
 			return n
 		}
 	}

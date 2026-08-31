@@ -118,7 +118,7 @@
   Создать `internal/infrastructure/persistence/postgres/job_queue_pg.go`, реализующий интерфейс `JobQueue`. Метод `ClaimNext` должен выполнять атомарный `UPDATE ... WHERE id = (SELECT ... FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING *`.  
   **DoD:** Метод возвращает задачу или nil, тесты подтверждают конкурентную безопасность.
 
-- [ ] **T4.3: Реализация VideoProcessor (ffmpeg)**  
+- [x] **T4.3: Реализация VideoProcessor (ffmpeg)**  
   Создать `internal/infrastructure/video/ffmpeg_processor.go` с методом `ProcessToHLS(ctx, inputPath, outputDir)`, использующим `exec.CommandContext` с аргументами ffmpeg для генерации HLS. Добавить ограничение `-threads`, таймаут.  
   **DoD:** Команда корректно запускается, при отмене контекста процесс завершается.
 
