@@ -110,7 +110,7 @@
 
 ## Спринт 4: Асинхронный воркер и интеграция ffmpeg
 
-- [ ] **T4.1: Domain-сущности ProcessingJob, JobStatus**  
+- [x] **T4.1: Domain-сущности ProcessingJob, JobStatus**  
   Определить `processing_job.go` с полями (ID, AssetID, Status, Attempt, LeaseOwner, LeaseExpiresAt, Error, таймстемпы) и enum `JobStatus` (queued, processing, success, failed).  
   **DoD:** Сущность готова, статусы валидируются.
 

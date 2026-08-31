@@ -1,0 +1,13 @@
+{
+  "change_id": "T4.1_claim_next",
+  "status": "applied",
+  "timestamp": "2026-08-31T10:14:53+04:00",
+  "agent": {
+    "name": "Kilocode-Go-Developer",
+    "version": "1.26.0"
+  },
+  "execution": {
+    "model": "deepseek-reasoning",
+    "mode": "Spec-Driven"
+  }
+}

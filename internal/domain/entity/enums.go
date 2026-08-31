@@ -43,3 +43,24 @@ func (s MediaStatus) IsValid() bool {
 		return false
 	}
 }
+
+// JobStatus описывает состояние задачи обработки.
+type JobStatus string
+
+// Статусы задач обработки медиафайлов.
+const (
+	JobStatusQueued     JobStatus = "queued"
+	JobStatusProcessing JobStatus = "processing"
+	JobStatusSuccess    JobStatus = "success"
+	JobStatusFailed     JobStatus = "failed"
+)
+
+// IsValid проверяет, что статус задачи входит в допустимые.
+func (s JobStatus) IsValid() bool {
+	switch s {
+	case JobStatusQueued, JobStatusProcessing, JobStatusSuccess, JobStatusFailed:
+		return true
+	default:
+		return false
+	}
+}
