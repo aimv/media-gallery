@@ -70,13 +70,19 @@ func (r *MediaRepository) Save(ctx context.Context, asset *entity.MediaAsset) er
 }
 
 // FindByID возвращает медиафайл по ID, исключая мягко удалённые.
+// NULL-значения в необязательных текстовых полях (hls_path, checksum_sha256)
+// приводятся к пустым строкам через COALESCE, чтобы избежать ошибок сканирования.
 func (r *MediaRepository) FindByID(ctx context.Context, id uuid.UUID) (*entity.MediaAsset, error) {
 	var asset entity.MediaAsset
 	var metadataJSON []byte
 
 	err := r.pool.QueryRow(ctx, `
-		SELECT id, original_filename, media_type, status, storage_path, hls_path,
-		       size_bytes, checksum_sha256, width, height, duration_ms, codec,
+		SELECT id, original_filename, media_type, status, storage_path,
+		       COALESCE(hls_path, ''),
+		       size_bytes,
+		       COALESCE(checksum_sha256, ''),
+		       COALESCE(width, 0), COALESCE(height, 0), COALESCE(duration_ms, 0),
+		       COALESCE(codec, ''),
 		       metadata, created_at, updated_at, deleted_at
 		FROM media_assets
 		WHERE id = $1 AND deleted_at IS NULL

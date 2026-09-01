@@ -109,11 +109,11 @@ func (r *QueueRepository) ClaimNext(ctx context.Context, workerID string, leaseD
 func (r *QueueRepository) UpdateStatus(ctx context.Context, id uuid.UUID, status entity.JobStatus, errMsg *string) error {
 	_, err := r.pool.Exec(ctx, `
 		UPDATE processing_jobs
-		SET status = $2,
+		SET status = $2::job_status,
 		    error = $3,
 		    updated_at = now(),
 		    finished_at = CASE
-		        WHEN $2 IN ('success', 'failed') THEN COALESCE(finished_at, now())
+		        WHEN $2::job_status IN ('success', 'failed') THEN COALESCE(finished_at, now())
 		        ELSE finished_at
 		    END
 		WHERE id = $1
