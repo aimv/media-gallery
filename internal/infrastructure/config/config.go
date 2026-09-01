@@ -20,6 +20,7 @@ type Config struct {
 	MaxUploadSize  int64  // максимальный размер загружаемого файла в байтах
 	LogLevel       string // уровень логирования: debug, info, warn, error
 	FFMPEGThreads  int    // количество потоков для ffmpeg
+	WorkerPoolSize int    // количество горутин в пуле воркера
 }
 
 // Load загружает конфигурацию из .env файла (если он есть)
@@ -52,6 +53,7 @@ func Load() (*Config, error) {
 		MaxUploadSize:  getEnvInt64("MAX_UPLOAD_SIZE", 524288000), // 500 МБ
 		LogLevel:       getEnv("LOG_LEVEL", "info"),
 		FFMPEGThreads:  getEnvInt("FFMPEG_THREADS", 2),
+		WorkerPoolSize: getEnvInt("WORKER_POOL_SIZE", 2),
 	}
 
 	if cfg.DBDSN == "" {
