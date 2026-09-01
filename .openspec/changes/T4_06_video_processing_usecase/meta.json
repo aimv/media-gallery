@@ -1,0 +1,13 @@
+{
+  "change_id": "T4_06_video_processing_usecase",
+  "status": "applied",
+  "timestamp": "2026-09-01T14:14:32+04:00",
+  "agent": {
+    "name": "Kilocode-Go-Expert",
+    "version": "1.26.0"
+  },
+  "execution": {
+    "model": "deepseek-reasoning",
+    "mode": "Spec-Driven"
+  }
+}
