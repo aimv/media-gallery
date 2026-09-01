@@ -3,6 +3,7 @@ package media
 import (
 	"context"
 	"errors"
+	"io"
 	"testing"
 	"time"
 
@@ -97,6 +98,23 @@ func (m *pvMockVideoProcessor) ProbeMetadata(_ context.Context, _ string) (*serv
 	return m.metadata, nil
 }
 
+// pvMockFileStorage — минимальная реализация repository.FileStorage для тестов.
+type pvMockFileStorage struct {
+	moveDirCalls int
+	moveDirErr   error
+}
+
+func (m *pvMockFileStorage) Save(_ context.Context, _ string, _ io.Reader) (string, error) {
+	return "", nil
+}
+
+func (m *pvMockFileStorage) Delete(_ context.Context, _ string) error { return nil }
+
+func (m *pvMockFileStorage) MoveDir(_ context.Context, _, _ string) error {
+	m.moveDirCalls++
+	return m.moveDirErr
+}
+
 // --- Helpers ---
 
 func equalMediaStatuses(got, want []entity.MediaStatus) bool {
@@ -148,8 +166,9 @@ func TestProcessVideoUseCase_Execute_Success(t *testing.T) {
 			Codec:      "h264",
 		},
 	}
+	storage := &pvMockFileStorage{}
 
-	uc := NewProcessVideoUseCase(mediaRepo, queueRepo, processor, t.TempDir())
+	uc := NewProcessVideoUseCase(mediaRepo, queueRepo, processor, storage, t.TempDir())
 	uc.heartbeatInterval = 20 * time.Millisecond
 
 	if err := uc.Execute(context.Background(), job); err != nil {
@@ -173,6 +192,10 @@ func TestProcessVideoUseCase_Execute_Success(t *testing.T) {
 	if !mediaRepo.updateMetadataCall {
 		t.Error("UpdateMetadata was not called")
 	}
+
+	if storage.moveDirCalls == 0 {
+		t.Error("MoveDir was not called")
+	}
 }
 
 func TestProcessVideoUseCase_Execute_ProcessError(t *testing.T) {
@@ -192,8 +215,9 @@ func TestProcessVideoUseCase_Execute_ProcessError(t *testing.T) {
 	processor := &pvMockVideoProcessor{
 		processErr: errors.New("ffmpeg crashed"),
 	}
+	storage := &pvMockFileStorage{}
 
-	uc := NewProcessVideoUseCase(mediaRepo, queueRepo, processor, t.TempDir())
+	uc := NewProcessVideoUseCase(mediaRepo, queueRepo, processor, storage, t.TempDir())
 	uc.heartbeatInterval = 20 * time.Millisecond
 
 	err := uc.Execute(context.Background(), job)
@@ -222,6 +246,10 @@ func TestProcessVideoUseCase_Execute_ProcessError(t *testing.T) {
 	if *lastErrMsg != wantErrMsg {
 		t.Errorf("errMsg = %q, want %q", *lastErrMsg, wantErrMsg)
 	}
+
+	if storage.moveDirCalls != 0 {
+		t.Error("MoveDir should not have been called on process error")
+	}
 }
 
 func TestProcessVideoUseCase_Execute_ProbeError(t *testing.T) {
@@ -241,8 +269,9 @@ func TestProcessVideoUseCase_Execute_ProbeError(t *testing.T) {
 	processor := &pvMockVideoProcessor{
 		probeErr: errors.New("invalid stream"),
 	}
+	storage := &pvMockFileStorage{}
 
-	uc := NewProcessVideoUseCase(mediaRepo, queueRepo, processor, t.TempDir())
+	uc := NewProcessVideoUseCase(mediaRepo, queueRepo, processor, storage, t.TempDir())
 	uc.heartbeatInterval = 20 * time.Millisecond
 
 	err := uc.Execute(context.Background(), job)
@@ -262,5 +291,9 @@ func TestProcessVideoUseCase_Execute_ProbeError(t *testing.T) {
 
 	if mediaRepo.updateMetadataCall {
 		t.Error("UpdateMetadata should not have been called on probe error")
+	}
+
+	if storage.moveDirCalls != 0 {
+		t.Error("MoveDir should not have been called on probe error")
 	}
 }

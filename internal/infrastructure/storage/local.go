@@ -1,5 +1,3 @@
-// internal/infrastructure/storage/local.go
-
 // Package storage предоставляет реализацию файлового хранилища на локальном диске.
 package storage
 
@@ -26,17 +24,14 @@ func NewLocalStorage(baseDir string) *LocalStorage {
 }
 
 // Save сохраняет поток данных в файл с уникальным именем внутри поддиректории uploads.
-// Возвращает относительный путь к сохранённому файлу.
 func (s *LocalStorage) Save(ctx context.Context, filename string, src io.Reader) (string, error) {
-	_ = ctx // Явное глушение неиспользуемого контекста для линтера revive
+	_ = ctx
 
-	// Определяем тип контента и получаем восстановленный поток (с заголовком).
 	mediaType, dataReader, err := entity.DetectContentType(src)
 	if err != nil {
 		return "", err
 	}
 
-	// Определяем расширение из исходного имени файла.
 	ext := filepath.Ext(filename)
 	if ext == "" {
 		switch mediaType {
@@ -49,30 +44,20 @@ func (s *LocalStorage) Save(ctx context.Context, filename string, src io.Reader)
 		}
 	}
 
-	// Генерируем уникальное имя.
 	newName := uuid.NewString() + ext
-
-	// Формируем относительный путь: uploads/<unique_name> и очищаем от уязвимостей.
 	relPath := filepath.Clean(filepath.Join("uploads", newName))
-
-	// Полный путь с защитой от уязвимости Path Traversal.
 	fullPath := filepath.Clean(filepath.Join(s.baseDir, relPath))
 
-	// Создаём директорию с безопасными правами 0750.
 	if err := os.MkdirAll(filepath.Dir(fullPath), 0o750); err != nil {
 		return "", fmt.Errorf("create dir: %w", err)
 	}
 
-	// Создаём файл.
 	f, err := os.Create(fullPath)
 	if err != nil {
 		return "", fmt.Errorf("create file: %w", err)
 	}
-
-	// Безопасное закрытие файла через отложенную функцию.
 	defer func() { _ = f.Close() }()
 
-	// Копируем данные из восстановленного потока.
 	if _, err := io.Copy(f, dataReader); err != nil {
 		return "", fmt.Errorf("copy data: %w", err)
 	}
@@ -82,11 +67,35 @@ func (s *LocalStorage) Save(ctx context.Context, filename string, src io.Reader)
 
 // Delete удаляет файл по относительному пути. Ошибка "не найдено" игнорируется.
 func (s *LocalStorage) Delete(ctx context.Context, storagePath string) error {
-	_ = ctx // Явное глушение неиспользуемого контекста для линтера revive
+	_ = ctx
 
 	fullPath := filepath.Join(s.baseDir, storagePath)
 	if err := os.Remove(fullPath); err != nil && !errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf("remove file: %w", err)
 	}
+	return nil
+}
+
+// MoveDir атомарно перемещает директорию srcDir в destDir.
+// Пути трактуются как есть (физические пути файловой системы).
+// Если destDir существует, он будет удалён перед перемещением.
+func (s *LocalStorage) MoveDir(ctx context.Context, srcDir, destDir string) error {
+	_ = ctx
+
+	// Гарантируем существование родительской папки назначения.
+	if err := os.MkdirAll(filepath.Dir(destDir), 0o750); err != nil {
+		return fmt.Errorf("create parent dir: %w", err)
+	}
+
+	// Удаляем существующую целевую папку (например, от предыдущей неудачной попытки).
+	if err := os.RemoveAll(destDir); err != nil {
+		return fmt.Errorf("remove existing dest dir: %w", err)
+	}
+
+	// Атомарное перемещение в пределах одной файловой системы.
+	if err := os.Rename(srcDir, destDir); err != nil {
+		return fmt.Errorf("rename dir: %w", err)
+	}
+
 	return nil
 }

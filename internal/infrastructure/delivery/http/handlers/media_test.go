@@ -41,6 +41,9 @@ func (m *mockFileStorage) Save(_ context.Context, _ string, _ io.Reader) (string
 func (m *mockFileStorage) Delete(_ context.Context, _ string) error {
 	return nil
 }
+func (m *mockFileStorage) MoveDir(_ context.Context, _, _ string) error {
+	return nil
+}
 
 func TestMediaHandler_Upload_Success(t *testing.T) {
 	// Подготавливаем use-case с моками.

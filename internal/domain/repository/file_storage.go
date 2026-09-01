@@ -13,4 +13,10 @@ type FileStorage interface {
 
 	// Delete удаляет файл по указанному относительному пути storagePath.
 	Delete(ctx context.Context, storagePath string) error
+
+	// MoveDir атомарно перемещает директорию srcDir в destDir.
+	// Если destDir уже существует, он будет удалён перед перемещением.
+	// Гарантирует, что клиенты увидят либо старое состояние destDir,
+	// либо полностью готовое новое содержимое, но не частично скопированные файлы.
+	MoveDir(ctx context.Context, srcDir, destDir string) error
 }

@@ -87,3 +87,49 @@ func TestLocalStorage_Delete(t *testing.T) {
 		t.Errorf("Delete() on non-existent file should not error, got: %v", err)
 	}
 }
+
+func TestLocalStorage_MoveDir_Success(t *testing.T) {
+	baseDir := t.TempDir()
+	store := NewLocalStorage(baseDir)
+
+	// Создаём исходную директорию с файлами.
+	srcDir := filepath.Join(baseDir, "src")
+	if err := os.MkdirAll(srcDir, 0o750); err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"file1.txt", "file2.txt"} {
+		if err := os.WriteFile(filepath.Join(srcDir, name), []byte("data"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Создаём целевую директорию с «мусором» — она должна быть удалена перед перемещением.
+	destDir := filepath.Join(baseDir, "dest")
+	if err := os.MkdirAll(destDir, 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(destDir, "old.txt"), []byte("x"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := store.MoveDir(context.Background(), srcDir, destDir); err != nil {
+		t.Fatalf("MoveDir() unexpected error: %v", err)
+	}
+
+	// Целевая директория не должна содержать старый файл.
+	if _, err := os.Stat(filepath.Join(destDir, "old.txt")); !os.IsNotExist(err) {
+		t.Error("old file should have been removed from dest dir")
+	}
+
+	// Оба новых файла должны присутствовать в целевой директории.
+	for _, name := range []string{"file1.txt", "file2.txt"} {
+		if _, err := os.Stat(filepath.Join(destDir, name)); err != nil {
+			t.Errorf("expected file %s in dest dir: %v", name, err)
+		}
+	}
+
+	// Исходная директория не должна существовать после перемещения.
+	if _, err := os.Stat(srcDir); !os.IsNotExist(err) {
+		t.Error("source dir should no longer exist after MoveDir")
+	}
+}
