@@ -122,7 +122,7 @@
   Создать `internal/infrastructure/video/ffmpeg_processor.go` с методом `ProcessToHLS(ctx, inputPath, outputDir)`, использующим `exec.CommandContext` с аргументами ffmpeg для генерации HLS. Добавить ограничение `-threads`, таймаут.  
   **DoD:** Команда корректно запускается, при отмене контекста процесс завершается.
 
-- [ ] **T4.4: Реализация ffprobe для валидации**  
+- [x] **T4.4: Реализация ffprobe для валидации**  
   В `internal/infrastructure/video/ffprobe.go` реализовать функцию `ProbeMetadata` и `Validate`, вызывающие ffprobe и парсящие JSON-вывод.  
   **DoD:** Извлекаются длительность, разрешение, кодеки; невалидные файлы отвергаются.
 

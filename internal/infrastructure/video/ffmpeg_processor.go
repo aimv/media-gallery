@@ -1,5 +1,3 @@
-// internal/infrastructure/video/ffmpeg_processor.go
-
 // Package video содержит реализации видеообработки через ffmpeg/ffprobe.
 package video
 
